@@ -1,0 +1,3 @@
+[img<cover1.jpeg>]
+[img<cover2.jpeg>]
+[img<cover3.jpeg>]

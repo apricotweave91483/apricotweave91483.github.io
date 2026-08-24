@@ -1,0 +1,32 @@
+code
+====
+
+D2 Discord bot
+  Tracks exotic loadout changes on friends' Destiny 2 characters and
+  posts updates to Discord via the Bungie API.
+  tech: Python + discord.py + Bungie API
+  [link<https://github.com/apricotweave91483/d2-discord-bot>]
+
+fetch
+  Codeforces problem CLI with difficulty filtering, seen-list
+  tracking, history, cache refresh, and optional browser opening.
+  tech: Bash + jq + Codeforces API
+  [link<https://github.com/apricotweave91483/codeforces-problem-fetcher>]
+
+2048 Bot
+  Automates play2048.co by reading board tiles from screen colors and
+  choosing moves with expectimax (Python or compiled C strategy).
+  tech: Python + C + PyAutoGUI
+  [link<https://github.com/apricotweave91483/all/tree/main/2048-bot>]
+
+ai_file
+  Bash CLI wrapper around Ollama that auto-starts the local server and
+  generates direct-to-file content from prompts.
+  tech: Bash + Ollama
+  [link<https://github.com/apricotweave91483/all/tree/main/ai_file>]
+
+Token Burner 3000
+  chess 'engine' where OpenAI and Anthropic's flagship models debate
+  until they agree on one move, then legality is checked.
+  tech: Python + OpenAI + Anthropic + python-chess
+
