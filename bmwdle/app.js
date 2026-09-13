@@ -3,6 +3,7 @@ const KEYS = ["chassis", "series", "body", "engine", "fuel", "m"];
 const LABELS = ["Chassis", "Series", "Body", "Engine", "Fuel", "M"];
 const ROUND_KEY = "bmwdle-round-v3";
 const STATS_KEY = "bmwdle-stats-v3";
+const TIME_ZONE = "America/Los_Angeles";
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -14,17 +15,24 @@ const revealEl = $("reveal");
 
 let data, carsById, target, puzzle, results = [], status = "playing", active = 0;
 
-function utcDay(d = new Date()) {
-  return d.toISOString().slice(0, 10);
+function dayString(d = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const get = (type) => parts.find((p) => p.type === type).value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
-function parseUtc(iso) {
+function dayMs(iso) {
   const [y, m, d] = iso.split("-").map(Number);
   return Date.UTC(y, m - 1, d);
 }
 
 function puzzleInfo(now = new Date()) {
-  const diff = Math.floor((parseUtc(utcDay(now)) - parseUtc(data.start)) / 86400000);
+  const diff = Math.floor((dayMs(dayString(now)) - dayMs(data.start)) / 86400000);
   const n = Math.max(1, diff + 1);
   const idx = ((diff % data.order.length) + data.order.length) % data.order.length;
   return { n, car: carsById.get(data.order[idx]) || data.cars[0] };
