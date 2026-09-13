@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BMWdle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0f23;
+      --ink: #ccc;
+      --dim: #666699;
+      --green: #009900;
+      --yellow: #ffff66;
+      --white: #fff;
+      --line: #333355;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.45 "Source Code Pro", ui-monospace, monospace;
+    }
+    main {
+      width: min(42rem, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 1.5rem 0 3rem;
+      display: grid;
+      gap: 1.1rem;
+    }
+    h1 { margin: 0; font-size: 1em; font-weight: 400; color: var(--white); }
+    h1 span { color: var(--yellow); }
+    #status { display: flex; justify-content: space-between; color: var(--dim); }
+    #guess {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: var(--white);
+      font: inherit;
+      padding: .35rem 0;
+      outline: none;
+    }
+    #guess:focus { border-bottom-color: var(--green); }
+    #guess::placeholder { color: var(--dim); }
+    .wrap { position: relative; }
+    #results {
+      position: absolute; left: 0; right: 0; top: 100%;
+      z-index: 10; margin: 0; padding: .25rem 0; list-style: none;
+      background: var(--bg); border: 1px solid var(--line); max-height: 240px; overflow: auto;
+    }
+    #results button {
+      width: 100%; display: flex; justify-content: space-between; gap: 1rem;
+      border: 0; background: transparent; color: var(--ink); font: inherit;
+      padding: .2rem .4rem; cursor: pointer; text-align: left;
+    }
+    #results button:hover, #results button.active { color: var(--white); background: #1a1a33; }
+    #results .meta { color: var(--dim); white-space: nowrap; }
+    #history { display: grid; gap: .85rem; }
+    .row-name { margin-bottom: .15rem; color: var(--white); }
+    .row-name.ok { color: var(--green); }
+    .labels, .strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: .35rem .5rem;
+    }
+    .labels { color: var(--dim); font-size: .75em; }
+    .pip { color: var(--dim); overflow-wrap: anywhere; }
+    .pip.exact { color: var(--green); }
+    .pip .close { color: var(--yellow); }
+    #reveal h2 { margin: 0; font-size: 1em; font-weight: 400; color: var(--white); }
+    #reveal .score { margin: 0 0 .35rem; color: var(--yellow); }
+    #reveal .sub { margin: .25rem 0 .75rem; color: var(--dim); }
+    #reveal .share {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 1rem; margin-top: 1rem;
+    }
+    #reveal .grid { display: grid; gap: .1rem; font-size: .85em; line-height: 1.1; }
+    #reveal .exact { color: var(--green); }
+    #reveal .close { color: var(--yellow); }
+    #reveal .wrong { color: var(--dim); }
+    #reveal button {
+      border: 0; background: transparent; color: var(--green);
+      font: inherit; cursor: pointer; text-decoration: underline; padding: 0;
+    }
+    #legend { color: var(--dim); }
+    #legend .ok { color: var(--green); }
+    #legend .near { color: var(--yellow); }
+    .hidden { display: none !important; }
+    @media (max-width: 640px) {
+      .labels, .strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #reveal .share { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>--- <span>BMWdle</span> ---</h1>
+    <div id="status"><span></span><span></span></div>
+    <div class="wrap" id="play">
+      <input id="guess" type="text" autocomplete="off" spellcheck="false" placeholder="> guess" />
+      <ul id="results" class="hidden"></ul>
+    </div>
+    <section id="reveal" class="hidden"></section>
+    <section id="history"></section>
+    <footer id="legend"><span class="ok"># correct</span> / <span class="near">= close</span> / . wrong</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
