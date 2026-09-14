@@ -4,6 +4,7 @@ const LABELS = ["Chassis", "Series", "Body", "Engine", "Fuel", "M"];
 const ROUND_KEY = "bmwdle-round-v3";
 const STATS_KEY = "bmwdle-stats-v3";
 const TIME_ZONE = "America/Los_Angeles";
+const SALT = "bavaria-drives-2026";
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -31,11 +32,42 @@ function dayMs(iso) {
   return Date.UTC(y, m - 1, d);
 }
 
+function hash32(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function cycleOrder(cycle) {
+  const ids = data.cars.map((c) => c.id);
+  const rand = mulberry32(hash32(`${SALT}:${data.start}:${cycle}`));
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  return ids;
+}
+
 function puzzleInfo(now = new Date()) {
   const diff = Math.floor((dayMs(dayString(now)) - dayMs(data.start)) / 86400000);
   const n = Math.max(1, diff + 1);
-  const idx = ((diff % data.order.length) + data.order.length) % data.order.length;
-  return { n, car: carsById.get(data.order[idx]) || data.cars[0] };
+  const count = data.cars.length;
+  const cycle = Math.floor(diff / count);
+  const pos = ((diff % count) + count) % count;
+  return { n, car: carsById.get(cycleOrder(cycle)[pos]) || data.cars[0] };
 }
 
 function norm(s) {
