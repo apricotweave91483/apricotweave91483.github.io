@@ -94,10 +94,10 @@ function search(q) {
     .map((x) => x.car);
 }
 
-function firstLetter(a, b) {
-  const x = a.trim().charAt(0).toUpperCase();
-  const y = b.trim().charAt(0).toUpperCase();
-  return Boolean(x) && x === y;
+function codeChars(g, t) {
+  const a = g.trim().toUpperCase();
+  const b = t.trim().toUpperCase();
+  return [...a].map((ch, i) => (ch === b[i] ? "close" : "wrong"));
 }
 
 function family(code) {
@@ -105,11 +105,13 @@ function family(code) {
 }
 
 function compare(guess, answer) {
+  const chassisChars = codeChars(guess.chassis, answer.chassis);
+  const engineChars = codeChars(guess.engine, answer.engine);
   const attrs = {
-    chassis: codeStatus(guess.chassis, answer.chassis),
+    chassis: codeStatus(guess.chassis, answer.chassis, chassisChars),
     series: guess.series === answer.series ? "exact" : "wrong",
     body: guess.body.toLowerCase() === answer.body.toLowerCase() ? "exact" : "wrong",
-    engine: engineStatus(guess, answer),
+    engine: engineStatus(guess, answer, engineChars),
     fuel: guess.fuel === answer.fuel ? "exact" : "wrong",
     m: guess.mRaw === answer.mRaw ? "exact" : "wrong",
   };
@@ -125,24 +127,25 @@ function compare(guess, answer) {
     car: guess,
     attrs,
     values,
+    chars: { chassis: chassisChars, engine: engineChars },
     ok: guess.id === answer.id,
   };
 }
 
-function codeStatus(g, t) {
+function codeStatus(g, t, chars) {
   if (g.toUpperCase() === t.toUpperCase()) return "exact";
-  if (firstLetter(g, t)) return "close";
+  if (chars.some((s) => s === "close")) return "close";
   return "wrong";
 }
 
-function engineStatus(guess, answer) {
+function engineStatus(guess, answer, chars) {
   if (
     guess.engine.toUpperCase() === answer.engine.toUpperCase() ||
     family(guess.engine) === family(answer.engine)
   ) {
     return "exact";
   }
-  if (firstLetter(guess.engine, answer.engine)) return "close";
+  if (chars.some((s) => s === "close")) return "close";
   return "wrong";
 }
 
@@ -158,11 +161,13 @@ function tone(s) {
   return s === "exact" ? "exact" : s === "close" ? "close" : "wrong";
 }
 
-function valueHtml(key, value, st, solved) {
-  if (!solved && st === "close") {
-    return `<span class="close">${value.charAt(0)}</span>${escapeHtml(value.slice(1))}`;
-  }
-  return escapeHtml(value);
+function valueHtml(value, chars) {
+  if (!chars) return escapeHtml(value);
+  return [...value]
+    .map((ch, i) =>
+      chars[i] === "close" ? `<span class="close">${escapeHtml(ch)}</span>` : escapeHtml(ch),
+    )
+    .join("");
 }
 
 function escapeHtml(s) {
@@ -247,7 +252,8 @@ function renderHistory() {
     .map((r) => {
       const cells = KEYS.map((k) => {
         const st = r.ok ? "exact" : r.attrs[k];
-        return `<div class="pip ${st === "exact" ? "exact" : ""}">${valueHtml(k, r.values[k], st, r.ok)}</div>`;
+        const chars = st === "exact" ? null : r.chars && r.chars[k];
+        return `<div class="pip ${st === "exact" ? "exact" : ""}">${valueHtml(r.values[k], chars)}</div>`;
       }).join("");
       return `<article><div class="row-name${r.ok ? " ok" : ""}"><strong>${escapeHtml(r.car.name)}</strong></div><div class="strip">${cells}</div></article>`;
     })
