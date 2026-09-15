@@ -217,7 +217,9 @@ function shareText() {
   const lines = results.map((r) =>
     KEYS.map((k) => emoji(r.ok ? "exact" : r.attrs[k])).join(""),
   );
-  return [`BMWdle #${puzzle}`, "", ...lines, "", status === "won" ? `${results.length}/${MAX}` : `X/${MAX}`].join("\n");
+  const score = status === "won" ? `${results.length}/${MAX}` : `X/${MAX}`;
+  const url = `${location.origin}${location.pathname}`.replace(/\/$/, "") || location.href;
+  return [`BMWdle #${puzzle}`, "", ...lines, "", score, url].join("\n");
 }
 
 function renderStatus() {
