@@ -70,21 +70,34 @@ function parseMarkup(text) {
   return html;
 }
 
+let contentRequest = null;
+
 async function loadPageContent(pageName) {
   const el = document.getElementById("content");
   if (!el) return;
 
+  contentRequest?.abort();
+  const request = new AbortController();
+  contentRequest = request;
+  window.PageDecrypt?.finish();
   const path = `data/${pageName}.txt`;
 
   try {
-    const response = await fetch(path, { cache: "no-store" });
+    const response = await fetch(path, { cache: "no-store", signal: request.signal });
     if (!response.ok) {
       throw new Error(`Could not load ${path} (${response.status})`);
     }
     const text = await response.text();
+    if (request !== contentRequest) return;
     el.innerHTML = parseMarkup(text);
   } catch (error) {
+    if (request !== contentRequest || request.signal.aborted) return;
     el.textContent = error.message;
+  } finally {
+    if (request === contentRequest) {
+      contentRequest = null;
+      window.PageDecrypt?.start(el);
+    }
   }
 }
 
